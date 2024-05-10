@@ -1,0 +1,29 @@
+{{- $colors := .Colors -}}
+
+{{- printf "%s%-10s%s%s\n" $colors.ExplainSection "GROUP:" $colors.Reset .GVK.Group -}}
+{{- printf "%s%-10s%s%s\n" $colors.ExplainSection "KIND:" $colors.Reset .GVK.Kind -}}
+{{- printf "%s%-10s%s%s\n\n" $colors.ExplainSection "VERSION:" $colors.Reset .GVK.Version -}}
+
+{{- if .Field -}}
+    {{- printf "%s%-10s%s%-15s %s%s%s\n\n"
+    $colors.ExplainSection "FIELD:" $colors.Reset
+    .Field.FieldName
+    $colors.ExplainType .Field.TypeName $colors.Reset -}}
+{{- end -}}
+
+{{- printf "%s%s%s" $colors.ExplainSection "DESCRIPTION:" $colors.Reset -}}
+{{- nindent 4 .Schema.SchemaProps.Description -}}
+{{- printf "\n\n" -}}
+
+{{- $colors.ExplainSection}}FIELDS:{{$colors.Reset -}}
+{{- range $key, $value := .Schema.SchemaProps.Properties -}}
+    {{- $type := $value.Type -}}
+    {{- if $ref := index $value.Extensions "x-kerria-dereferenced-from" -}}
+        {{- $type = (splitList "/" $ref | last) -}}
+    {{- end -}}
+    {{- nindent 2 (printf "%s%-15s%s %s%s%s"
+    $colors.ExplainField $key $colors.Reset
+    $colors.ExplainType $type $colors.Reset) -}}
+    {{- nindent 4 (wrap 80 $value.Description) -}}
+    {{- printf "\n" -}}
+{{- end -}}
