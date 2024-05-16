@@ -70,6 +70,11 @@ func NewRepositoryMessage(
 			ID:   repoSource.ID,
 			Name: repoSource.Name})
 	}
+	message.Discoveries.Delete = []Discovery{}
+	message.Discoveries.Check = []Discovery{}
+	message.Discoveries.Rebuilt = []Discovery{}
+	message.Discoveries.Create = []Discovery{}
+
 	for _, pair := range intersection.Delete {
 		message.Discoveries.Delete = append(message.Discoveries.Delete, *newDiscovery(&pair))
 	}
@@ -79,6 +84,7 @@ func NewRepositoryMessage(
 	for _, pair := range intersection.Create {
 		message.Discoveries.Create = append(message.Discoveries.Create, *newDiscovery(&pair))
 	}
+
 	return message
 }
 
@@ -89,6 +95,7 @@ func (message *RepositoryMessage) WithProcessor(processor *resources.Processor) 
 }
 
 func (message *RepositoryMessage) WithRebuilt(rebuilt []build.PairedDiscovery) {
+	message.Discoveries.Rebuilt = []Discovery{}
 	for _, pair := range rebuilt {
 		message.Discoveries.Rebuilt = append(message.Discoveries.Rebuilt, *newDiscovery(&pair))
 	}
