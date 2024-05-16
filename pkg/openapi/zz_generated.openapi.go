@@ -149,10 +149,11 @@ func schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref common.ReferenceCallback
 					},
 					"sourceHashType": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SourceHashType is the type of hash used to compute the source digest",
+							Description: "SourceHashType is the type of hash used to compute the source digest\n\nPossible enum values:\n - `\"md5\"`\n - `\"sha1\"`\n - `\"sha256\"`\n - `\"sha512\"`",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
+							Enum:        []interface{}{"md5", "sha1", "sha256", "sha512"},
 						},
 					},
 					"sourcePath": {
@@ -173,10 +174,11 @@ func schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref common.ReferenceCallback
 					},
 					"buildHashType": {
 						SchemaProps: spec.SchemaProps{
-							Description: "BuildHashType is the type of hash used to compute the build digest",
+							Description: "BuildHashType is the type of hash used to compute the build digest\n\nPossible enum values:\n - `\"md5\"`\n - `\"sha1\"`\n - `\"sha256\"`\n - `\"sha512\"`",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
+							Enum:        []interface{}{"md5", "sha1", "sha256", "sha512"},
 						},
 					},
 					"buildPath": {

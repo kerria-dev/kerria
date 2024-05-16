@@ -39,13 +39,24 @@ type BuildStatus struct {
 	// SourceHash is the source directory hash digest in the form of SourceHashType
 	SourceHash string `json:"sourceHash" yaml:"sourceHash"`
 	// SourceHashType is the type of hash used to compute the source digest
-	SourceHashType string `json:"sourceHashType" yaml:"sourceHashType"`
+	SourceHashType HashAlgorithm `json:"sourceHashType" yaml:"sourceHashType"`
 	// SourcePath is the path to the source directory used to create the build
 	SourcePath string `json:"sourcePath" yaml:"sourcePath"`
 	// BuildHash is the build directory hash digest in the form of BuildHashType
 	BuildHash string `json:"buildHash" yaml:"buildHash"`
 	// BuildHashType is the type of hash used to compute the build digest
-	BuildHashType string `json:"buildHashType" yaml:"buildHashType"`
+	BuildHashType HashAlgorithm `json:"buildHashType" yaml:"buildHashType"`
 	// BuildPath is the path to the build directory where the build output was written to
 	BuildPath string `json:"buildPath" yaml:"buildPath"`
 }
+
+// HashAlgorithm is a string enum representing the supported hash algorithms
+// +enum
+type HashAlgorithm string
+
+const (
+	MD5    HashAlgorithm = "md5"
+	SHA1   HashAlgorithm = "sha1"
+	SHA256 HashAlgorithm = "sha256"
+	SHA512 HashAlgorithm = "sha512"
+)

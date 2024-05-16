@@ -65,10 +65,7 @@ type BuildStatus struct {
 func LockfileFromAPI(apiLock *v1alpha1.Lockfile) (lockfile *Lockfile, err error) {
 	lockfile = &Lockfile{}
 	lockfile.Name = apiLock.Name
-	lockfile.DefaultHash, err = HashAlgorithmFromString(apiLock.Spec.DefaultHash)
-	if err != nil {
-		return
-	}
+	lockfile.DefaultHash = HashAlgorithms[apiLock.Spec.DefaultHash]
 	for idx, apiBuildStatus := range apiLock.Status.Builds {
 
 		buildStatus := BuildStatus{}
@@ -81,19 +78,13 @@ func LockfileFromAPI(apiLock *v1alpha1.Lockfile) (lockfile *Lockfile, err error)
 		if err != nil {
 			return
 		}
-		buildStatus.SourceHashType, err = HashAlgorithmFromString(apiBuildStatus.SourceHashType)
-		if err != nil {
-			return
-		}
+		buildStatus.SourceHashType = HashAlgorithms[string(apiBuildStatus.SourceHashType)]
 		buildStatus.SourcePath = apiBuildStatus.SourcePath
 		buildStatus.BuildHash, err = hex.DecodeString(apiBuildStatus.BuildHash)
 		if err != nil {
 			return
 		}
-		buildStatus.BuildHashType, err = HashAlgorithmFromString(apiBuildStatus.BuildHashType)
-		if err != nil {
-			return
-		}
+		buildStatus.BuildHashType = HashAlgorithms[string(apiBuildStatus.BuildHashType)]
 		buildStatus.BuildPath = apiBuildStatus.BuildPath
 
 		lockfile.Builds = append(lockfile.Builds, &buildStatus)
@@ -111,10 +102,10 @@ func (lockfile *Lockfile) AsAPI() (apiLock *v1alpha1.Lockfile) {
 		apiBuildStatus := v1alpha1.BuildStatus{
 			Timestamp:      buildStatus.Timestamp.Format(time.RFC3339),
 			SourceHash:     hex.EncodeToString(buildStatus.SourceHash),
-			SourceHashType: HashAlgorithmsReverse[buildStatus.SourceHashType],
+			SourceHashType: v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.SourceHashType]),
 			SourcePath:     buildStatus.SourcePath,
 			BuildHash:      hex.EncodeToString(buildStatus.BuildHash),
-			BuildHashType:  HashAlgorithmsReverse[buildStatus.BuildHashType],
+			BuildHashType:  v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.BuildHashType]),
 			BuildPath:      buildStatus.BuildPath,
 		}
 		apiLock.Status.Builds = append(apiLock.Status.Builds, apiBuildStatus)
@@ -141,16 +132,6 @@ func (lockfile *Lockfile) WriteWithPath(path string) error {
 		return err
 	}
 	return nil
-}
-
-func HashAlgorithmFromString(name string) (algorithm HashAlgorithm, err error) {
-	var exists bool
-	algorithm, exists = HashAlgorithms[name]
-	if !exists {
-		err = fmt.Errorf("hash algorithm does not exist (%s)", name)
-		return
-	}
-	return
 }
 
 func Hasher(algorithm HashAlgorithm) (hash.Hash, error) {
