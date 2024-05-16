@@ -31,6 +31,7 @@ type Processor struct {
 }
 
 type Source struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -42,7 +43,7 @@ type DiscoveryStatus struct {
 }
 
 type Discovery struct {
-	Source         string            `json:"source"`
+	Source         int               `json:"source"`
 	SourcePath     string            `json:"sourcePath"`
 	SourceHash     string            `json:"sourceHash"`
 	SourceHashType string            `json:"sourceHashType"`
@@ -65,7 +66,9 @@ func NewRepositoryMessage(
 	message.Name = repository.Name
 	message.BuildPath = repository.BuildPath
 	for _, repoSource := range repository.Sources {
-		message.Sources = append(message.Sources, Source{Name: repoSource.Name})
+		message.Sources = append(message.Sources, Source{
+			ID:   repoSource.ID,
+			Name: repoSource.Name})
 	}
 	for _, pair := range intersection.Delete {
 		message.Discoveries.Delete = append(message.Discoveries.Delete, *newDiscovery(&pair))
@@ -93,7 +96,7 @@ func (message *RepositoryMessage) WithRebuilt(rebuilt []build.PairedDiscovery) {
 
 func newDiscovery(pair *build.PairedDiscovery) *Discovery {
 	return &Discovery{
-		Source:         pair.Source.Name,
+		Source:         pair.Source.ID,
 		SourcePath:     pair.BuildStatus.SourcePath,
 		SourceHash:     hex.EncodeToString(pair.BuildStatus.SourceHash),
 		SourceHashType: resources.HashAlgorithmsReverse[pair.BuildStatus.SourceHashType],
