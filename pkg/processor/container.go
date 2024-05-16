@@ -43,10 +43,8 @@ func DockerCommand(processor *resources.Processor, message *RepositoryMessage) e
 
 	stdoutScanner := bufio.NewScanner(stdoutPipe)
 	go func() {
-
 		for stdoutScanner.Scan() {
-			line := stdoutScanner.Text()
-			klog.Infof("[%s] %s\n", processor.Name, line)
+			_ = stdoutScanner.Text()
 		}
 	}()
 
