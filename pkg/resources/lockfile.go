@@ -35,13 +35,13 @@ const (
 )
 
 var (
-	hashAlgorithms = map[string]HashAlgorithm{
+	HashAlgorithms = map[string]HashAlgorithm{
 		"md5":    MD5,
 		"sha1":   SHA1,
 		"sha256": SHA256,
 		"sha512": SHA512,
 	}
-	hashAlgorithmsReverse map[HashAlgorithm]string
+	HashAlgorithmsReverse map[HashAlgorithm]string
 )
 
 type Lockfile struct {
@@ -106,15 +106,15 @@ func (lockfile *Lockfile) AsAPI() (apiLock *v1alpha1.Lockfile) {
 	apiLock.APIVersion = krapi.APIVersionV1Alpha1
 	apiLock.Kind = LockKind
 	apiLock.Name = lockfile.Name
-	apiLock.Spec.DefaultHash = hashAlgorithmsReverse[lockfile.DefaultHash]
+	apiLock.Spec.DefaultHash = HashAlgorithmsReverse[lockfile.DefaultHash]
 	for _, buildStatus := range lockfile.Builds {
 		apiBuildStatus := v1alpha1.BuildStatus{
 			Timestamp:      buildStatus.Timestamp.Format(time.RFC3339),
 			SourceHash:     hex.EncodeToString(buildStatus.SourceHash),
-			SourceHashType: hashAlgorithmsReverse[buildStatus.SourceHashType],
+			SourceHashType: HashAlgorithmsReverse[buildStatus.SourceHashType],
 			SourcePath:     buildStatus.SourcePath,
 			BuildHash:      hex.EncodeToString(buildStatus.BuildHash),
-			BuildHashType:  hashAlgorithmsReverse[buildStatus.BuildHashType],
+			BuildHashType:  HashAlgorithmsReverse[buildStatus.BuildHashType],
 			BuildPath:      buildStatus.BuildPath,
 		}
 		apiLock.Status.Builds = append(apiLock.Status.Builds, apiBuildStatus)
@@ -145,7 +145,7 @@ func (lockfile *Lockfile) WriteWithPath(path string) error {
 
 func HashAlgorithmFromString(name string) (algorithm HashAlgorithm, err error) {
 	var exists bool
-	algorithm, exists = hashAlgorithms[name]
+	algorithm, exists = HashAlgorithms[name]
 	if !exists {
 		err = fmt.Errorf("hash algorithm does not exist (%s)", name)
 		return
@@ -207,8 +207,8 @@ func ReadLockfileWithPath(path string) (lockfile *Lockfile, err error) {
 }
 
 func init() {
-	hashAlgorithmsReverse = make(map[HashAlgorithm]string, len(hashAlgorithms))
-	for key, value := range hashAlgorithms {
-		hashAlgorithmsReverse[value] = key
+	HashAlgorithmsReverse = make(map[HashAlgorithm]string, len(HashAlgorithms))
+	for key, value := range HashAlgorithms {
+		HashAlgorithmsReverse[value] = key
 	}
 }

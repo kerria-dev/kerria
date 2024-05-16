@@ -11,9 +11,13 @@ set -o pipefail
 set -o nounset
 set -o xtrace
 
+delete_generated_files() {
+  "${CMD_LS_FILES[@]}" -z "pkg/**/${GEN_FILE_BASE_OPENAPI}.go" \
+    | xargs --null rm --force
+}
+
 # Delete previously generated files
-"${CMD_LS_FILES[@]}" -z "pkg/**/${GEN_FILE_BASE_OPENAPI}.go" \
-  | xargs --null rm --force
+delete_generated_files
 
 # Execute codegen
 ALLOWED_VIOLATIONS=(
@@ -26,5 +30,6 @@ if "${CMD_OPENAPI_GEN[@]}" \
     --output-file-base "$GEN_FILE_BASE_OPENAPI" \
     --output-package "${GEN_GO_MODULE}/${GEN_OPENAPI}" \
   | grep --invert-match --extended-regexp "$VIOLATION_PATTERN"; then
-  exit 1;
+    delete_generated_files
+    exit 1;
 fi

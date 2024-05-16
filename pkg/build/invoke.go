@@ -20,18 +20,17 @@ var (
 
 func KustomizeBuildCommand(path string, flags []string) (string, error) {
 	cmd := exec.Command(buildCommand, slices.Concat(buildCommandArgsBase, []string{path}, flags)...)
+
 	stdoutPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		return "", err
 	}
+	defer stdoutPipe.Close()
 	stderrPipe, err := cmd.StderrPipe()
 	if err != nil {
 		return "", err
 	}
-	err = cmd.Start()
-	if err != nil {
-		return "", err
-	}
+	defer stderrPipe.Close()
 
 	var stdoutBuffer bytes.Buffer
 	stdoutScanner := bufio.NewScanner(stdoutPipe)
@@ -43,9 +42,16 @@ func KustomizeBuildCommand(path string, flags []string) (string, error) {
 	}()
 
 	stderrScanner := bufio.NewScanner(stderrPipe)
-	for stderrScanner.Scan() {
-		line := stderrScanner.Text()
-		klog.Infof("[%s] %s\n", buildCommand, line)
+	go func() {
+		for stderrScanner.Scan() {
+			line := stderrScanner.Text()
+			klog.Infof("[%s] %s\n", buildCommand, line)
+		}
+	}()
+
+	err = cmd.Start()
+	if err != nil {
+		return "", err
 	}
 
 	err = cmd.Wait()

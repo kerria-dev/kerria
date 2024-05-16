@@ -9,9 +9,7 @@ import (
 
 // Repository is the configuration API for a kerria-managed repository
 type Repository struct {
-	// +k8s:openapi-gen=true
-	meta.TypeMeta `json:",inline" yaml:",inline"`
-	// +k8s:openapi-gen=true
+	meta.TypeMeta   `json:",inline" yaml:",inline"`
 	meta.ObjectMeta `json:"metadata" yaml:"metadata"`
 
 	Spec RepositorySpec `json:"spec,omitempty" yaml:"spec,omitempty"`
@@ -24,6 +22,9 @@ type RepositorySpec struct {
 	// +listMapKey=path
 	// Sources is a list of RepositorySourceConfig to find source manifests
 	Sources []RepositorySourceConfig `json:"sources,omitempty" yaml:"sources,omitempty"`
+	// +listType=map
+	// +listMapKey=name
+	Processors []ProcessorConfig `json:"processors,omitempty" yaml:"processors,omitempty"`
 }
 
 // RepositoryBuildConfig specifies how kerria should build and store manifests
@@ -44,4 +45,70 @@ type RepositorySourceConfig struct {
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Glob is a directory pattern for manifest sources
 	Glob string `json:"glob" yaml:"glob"`
+}
+
+// ProcessorConfig defines how a processor should be configured for the repository
+type ProcessorConfig struct {
+	Name string `json:"name" yaml:"name"`
+	// +default="None"
+	// Stage is the build stage to run this processor in
+	Stage ProcessorStage `json:"stage,omitempty" yaml:"stage,omitempty"`
+	// Container defines the container that executes the processor
+	Container ContainerSpec `json:"container" yaml:"container"`
+	// Properties are arbitrary properties passed directly to the processor
+	Properties interface{} `json:"properties,omitempty" yaml:"properties,omitempty"`
+}
+
+// ProcessorStage is a string enum representing the build process stage a processor should run in
+// +enum
+type ProcessorStage string
+
+const (
+	None      ProcessorStage = "None"
+	PreBuild  ProcessorStage = "PreBuild"
+	PostBuild ProcessorStage = "PostBuild"
+)
+
+// ContainerSpec defines a spec for running a function as a container
+type ContainerSpec struct {
+	// Image is the container image to run
+	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+
+	// +default=false
+	// Network defines network specific configuration
+	Network bool `json:"network,omitempty" yaml:"network,omitempty"`
+
+	// +default=true
+	// MountRepo defines whether Kerria will automatically mount the directory of repo file into the processor.
+	// The destination for this automatic mount is /repository within the container
+	MountRepo bool `json:"mountRepo,omitempty" yaml:"mountRepo,omitempty"`
+
+	// +listType=map
+	// +listMapKey=src
+	// AdditionalMounts are additional storage or directories to mount into the container
+	AdditionalMounts []StorageMount `json:"additionalMounts,omitempty" yaml:"additionalMounts,omitempty"`
+
+	// +listType=atomic
+	// Envs is a slice of env string that will be exposed to container
+	Envs []string `json:"envs,omitempty" yaml:"envs,omitempty"`
+}
+
+// StorageMount represents a container's mounted storage option(s)
+type StorageMount struct {
+	// Type of mount e.g. bind mount, local volume, etc.
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+
+	// Src for the storage to be mounted.
+	// For named volumes, this is the name of the volume.
+	// For anonymous volumes, this field is omitted (empty string).
+	// For bind mounts, this is the path to the file or directory on the host.
+	Src string `json:"src,omitempty" yaml:"src,omitempty"`
+
+	// Dst where the file or directory is mounted in the container.
+	Dst string `json:"dst,omitempty" yaml:"dst,omitempty"`
+
+	// +default=false
+	// RW to mount in ReadWrite mode if it's explicitly configured
+	// See https://docs.docker.com/storage/bind-mounts/#use-a-read-only-bind-mount
+	RW bool `json:"rw,omitempty" yaml:"rw,omitempty"`
 }

@@ -20,13 +20,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/meta.ObjectMeta":                 schema_pkg_apis_kerriadev_meta_ObjectMeta(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/meta.TypeMeta":                   schema_pkg_apis_kerriadev_meta_TypeMeta(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.BuildStatus":            schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref),
+		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ContainerSpec":          schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.Lockfile":               schema_pkg_apis_kerriadev_v1alpha1_Lockfile(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.LockfileSpec":           schema_pkg_apis_kerriadev_v1alpha1_LockfileSpec(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.LockfileStatus":         schema_pkg_apis_kerriadev_v1alpha1_LockfileStatus(ref),
+		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ProcessorConfig":        schema_pkg_apis_kerriadev_v1alpha1_ProcessorConfig(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.Repository":             schema_pkg_apis_kerriadev_v1alpha1_Repository(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositoryBuildConfig":  schema_pkg_apis_kerriadev_v1alpha1_RepositoryBuildConfig(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositorySourceConfig": schema_pkg_apis_kerriadev_v1alpha1_RepositorySourceConfig(ref),
 		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositorySpec":         schema_pkg_apis_kerriadev_v1alpha1_RepositorySpec(ref),
+		"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.StorageMount":           schema_pkg_apis_kerriadev_v1alpha1_StorageMount(ref),
 	}
 }
 
@@ -191,6 +194,86 @@ func schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref common.ReferenceCallback
 	}
 }
 
+func schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ContainerSpec defines a spec for running a function as a container",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Image is the container image to run",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"network": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Network defines network specific configuration",
+							Default:     false,
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"mountRepo": {
+						SchemaProps: spec.SchemaProps{
+							Description: "MountRepo defines whether Kerria will automatically mount the directory of repo file into the processor. The destination for this automatic mount is /repository within the container",
+							Default:     true,
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"additionalMounts": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"src",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "AdditionalMounts are additional storage or directories to mount into the container",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.StorageMount"),
+									},
+								},
+							},
+						},
+					},
+					"envs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "atomic",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "Envs is a slice of env string that will be exposed to container",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.StorageMount"},
+	}
+}
+
 func schema_pkg_apis_kerriadev_v1alpha1_Lockfile(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -296,6 +379,52 @@ func schema_pkg_apis_kerriadev_v1alpha1_LockfileStatus(ref common.ReferenceCallb
 		},
 		Dependencies: []string{
 			"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.BuildStatus"},
+	}
+}
+
+func schema_pkg_apis_kerriadev_v1alpha1_ProcessorConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ProcessorConfig defines how a processor should be configured for the repository",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"stage": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Stage is the build stage to run this processor in\n\nPossible enum values:\n - `\"None\"`\n - `\"PostBuild\"`\n - `\"PreBuild\"`",
+							Default:     "None",
+							Type:        []string{"string"},
+							Format:      "",
+							Enum:        []interface{}{"None", "PostBuild", "PreBuild"},
+						},
+					},
+					"container": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Container defines the container that executes the processor",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ContainerSpec"),
+						},
+					},
+					"properties": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Properties are arbitrary properties passed directly to the processor",
+							Type:        []string{"object"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"name", "container"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ContainerSpec"},
 	}
 }
 
@@ -449,10 +578,73 @@ func schema_pkg_apis_kerriadev_v1alpha1_RepositorySpec(ref common.ReferenceCallb
 							},
 						},
 					},
+					"processors": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ProcessorConfig"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositoryBuildConfig", "github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositorySourceConfig"},
+			"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.ProcessorConfig", "github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositoryBuildConfig", "github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1.RepositorySourceConfig"},
+	}
+}
+
+func schema_pkg_apis_kerriadev_v1alpha1_StorageMount(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "StorageMount represents a container's mounted storage option(s)",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of mount e.g. bind mount, local volume, etc.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"src": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Src for the storage to be mounted. For named volumes, this is the name of the volume. For anonymous volumes, this field is omitted (empty string). For bind mounts, this is the path to the file or directory on the host.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dst": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Dst where the file or directory is mounted in the container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"rw": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RW to mount in ReadWrite mode if it's explicitly configured See https://docs.docker.com/storage/bind-mounts/#use-a-read-only-bind-mount",
+							Default:     false,
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
 	}
 }

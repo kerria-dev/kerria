@@ -27,4 +27,22 @@ func SetObjectDefaults_Repository(in *Repository) {
 	if in.Spec.Build.OutputPath == "" {
 		in.Spec.Build.OutputPath = "builds"
 	}
+	for i := range in.Spec.Processors {
+		a := &in.Spec.Processors[i]
+		if a.Stage == "" {
+			a.Stage = "None"
+		}
+		if a.Container.Network == false {
+			a.Container.Network = false
+		}
+		if a.Container.MountRepo == false {
+			a.Container.MountRepo = true
+		}
+		for j := range a.Container.AdditionalMounts {
+			b := &a.Container.AdditionalMounts[j]
+			if b.RW == false {
+				b.RW = false
+			}
+		}
+	}
 }
