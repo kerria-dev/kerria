@@ -122,7 +122,7 @@ func createBuilds(pairs []PairedDiscovery, kustomizeFlags []string, repoRoot str
 			return err
 		}
 		digest, err := util.DirectoryHash(buildStatus.BuildHashType,
-			repoRoot, filepath.Join(cwdRel, buildStatus.SourcePath))
+			repoRoot, filepath.Join(cwdRel, buildStatus.BuildPath))
 		if err != nil {
 			return err
 		}
