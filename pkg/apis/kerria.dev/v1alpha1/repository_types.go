@@ -72,7 +72,7 @@ const (
 // ContainerSpec defines a spec for running a function as a container
 type ContainerSpec struct {
 	// Image is the container image to run
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+	Image string `json:"image" yaml:"image"`
 
 	// +default=false
 	// Network defines network specific configuration

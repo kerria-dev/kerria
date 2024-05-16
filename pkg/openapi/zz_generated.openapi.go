@@ -204,6 +204,7 @@ func schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref common.ReferenceCallba
 					"image": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Image is the container image to run",
+							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -267,6 +268,7 @@ func schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref common.ReferenceCallba
 						},
 					},
 				},
+				Required: []string{"image"},
 			},
 		},
 		Dependencies: []string{
