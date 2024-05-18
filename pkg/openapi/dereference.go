@@ -62,17 +62,16 @@ func DereferenceResourceWithDepth(resource kyyaml.TypeMeta, depth int) *kyoapi.R
 	return root
 }
 
-func dereferenceSchema(schema *kyoapi.ResourceSchema, propertyValue *spec.Schema) (replacement *kyoapi.ResourceSchema) {
+func dereferenceSchema(schema *kyoapi.ResourceSchema, propertyValue *spec.Schema) *kyoapi.ResourceSchema {
 	ref := &propertyValue.SchemaProps.Ref
 	if ref.GetPointer().IsEmpty() {
-		return
+		return nil
 	}
 
 	if schema.Schema.Extensions == nil {
 		schema.Schema.Extensions = make(spec.Extensions)
 	}
 	schema.Schema.Extensions.Add(extensionDeref, ref.String())
-	replacement = schema
 
-	return
+	return schema
 }

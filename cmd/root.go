@@ -41,10 +41,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.PersistentFlags().BoolVar(&enableColors, "colors", true, "Enable color output")
-}
-
 func Execute() {
 	if !isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()) {
 		enableColors = false
@@ -55,4 +51,8 @@ func Execute() {
 		klog.Error(err)
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.PersistentFlags().BoolVar(&enableColors, "colors", true, "Enable color output")
 }

@@ -6,7 +6,6 @@ package build
 import (
 	"github.com/kerria-dev/kerria/pkg/resources"
 	"github.com/kerria-dev/kerria/pkg/util"
-	"hash"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,19 +13,18 @@ import (
 	"unicode/utf8"
 )
 
-func DirectoryHash(algorithm resources.HashAlgorithm, baseDir string, relativeDir string) (digest []byte, err error) {
-	baseDir, err = filepath.Abs(baseDir)
+func DirectoryHash(algorithm resources.HashAlgorithm, baseDir string, relativeDir string) ([]byte, error) {
+	baseDir, err := filepath.Abs(baseDir)
 	if err != nil {
-		return
+		return nil, err
 	}
-	var hasher hash.Hash
-	hasher, err = resources.Hasher(algorithm)
+	hasher, err := resources.Hasher(algorithm)
 	if err != nil {
-		return
+		return nil, err
 	}
 	ignores, err := util.NewIgnores(baseDir)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	err = filepath.WalkDir(filepath.Join(baseDir, relativeDir), func(currentPath string, dirEntry fs.DirEntry, err error) error {
@@ -64,11 +62,9 @@ func DirectoryHash(algorithm resources.HashAlgorithm, baseDir string, relativeDi
 		return nil
 	})
 	if err != nil {
-		return
+		return nil, err
 	}
-
-	digest = hasher.Sum(nil)
-	return
+	return hasher.Sum(nil), nil
 }
 
 func NormalizeLineEndings(content string) string {

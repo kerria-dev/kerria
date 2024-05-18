@@ -169,25 +169,22 @@ func ReadRepository() (*Repository, error) {
 	return ReadRepositoryWithPath(RepoFile)
 }
 
-func ReadRepositoryWithPath(path string) (repository *Repository, err error) {
-	var rnode *kyyaml.RNode
-	rnode, err = kyyaml.ReadFile(path)
+func ReadRepositoryWithPath(path string) (*Repository, error) {
+	rnode, err := kyyaml.ReadFile(path)
 	if err != nil {
-		return
+		return nil, err
 	}
 	err = rnode.DeAnchor()
 	if err != nil {
-		return
+		return nil, err
 	}
 	apiVersion := rnode.GetApiVersion()
 	kind := rnode.GetKind()
 	if apiVersion != krapi.APIVersionV1Alpha1 {
-		err = fmt.Errorf("unsupported apiVersion for Repository %s", apiVersion)
-		return
+		return nil, fmt.Errorf("unsupported apiVersion for Repository %s", apiVersion)
 	}
 	if kind != RepoKind {
-		err = fmt.Errorf("incorrect kind %s is not Repository", kind)
-		return
+		return nil, fmt.Errorf("incorrect kind %s is not Repository", kind)
 	}
 	typeMeta := kyyaml.TypeMeta{
 		APIVersion: apiVersion,
@@ -199,8 +196,7 @@ func ReadRepositoryWithPath(path string) (repository *Repository, err error) {
 		return nil, err
 	}
 	v1alpha1Repo := value.Interface().(*v1alpha1.Repository)
-	repository, err = RepositoryFromAPI(v1alpha1Repo)
-	return
+	return RepositoryFromAPI(v1alpha1Repo)
 }
 
 func init() {

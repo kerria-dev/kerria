@@ -4,6 +4,7 @@
 </div>
 
 ### ✿ Kerria is a tool that helps to:
+
 - Integrate manifests from various sources (Kustomize, Helm , Jsonnet, Github API, and more)
 - Build configuration ahead-of-time so that inflation of manifests does not happen at runtime in the CD controller
 - Ensure the integrity of dependancies and build output.

@@ -16,8 +16,11 @@ import (
 	"text/template"
 )
 
-//go:embed templates/explain.tmpl
-var templateExplain embed.FS
+var (
+	//go:embed templates/explain.tmpl
+	templateExplainEmbed embed.FS
+	templateExplain      *template.Template
+)
 
 var explainCmd = &cobra.Command{
 	Use:   "explain",
@@ -31,16 +34,7 @@ var explainCmd = &cobra.Command{
 			panic("rschema is nil")
 		}
 
-		templateContent, err := templateExplain.ReadFile("templates/explain.tmpl")
-		if err != nil {
-			panic(err)
-		}
-		template, err := template.New("explain").Funcs(sprig.FuncMap()).Parse(string(templateContent))
-		if err != nil {
-			panic(err)
-		}
-
-		err = template.Execute(os.Stdout, explainData{
+		err := templateExplain.Execute(os.Stdout, explainData{
 			GVK: v1.GroupVersionKind{
 				Group:   "kerria.dev",
 				Version: "v1alpha1",
@@ -55,10 +49,6 @@ var explainCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(explainCmd)
-}
-
 type explainData struct {
 	GVK    v1.GroupVersionKind
 	Schema spec.Schema
@@ -69,4 +59,17 @@ type explainData struct {
 type fieldData struct {
 	FieldName string
 	TypeName  string
+}
+
+func init() {
+	templateExplainContent, err := templateExplainEmbed.ReadFile("templates/explain.tmpl")
+	if err != nil {
+		panic(err)
+	}
+	templateExplain, err = template.New("explain").Funcs(sprig.FuncMap()).Parse(string(templateExplainContent))
+	if err != nil {
+		panic(err)
+	}
+
+	rootCmd.AddCommand(explainCmd)
 }

@@ -25,8 +25,8 @@ type PairedDiscovery struct {
 
 // Intersect finds the intersection and difference of the resources.Repository and resources.Lockfile based on the
 // source path.
-func Intersect(repository *resources.Repository, lockfile *resources.Lockfile) (intersection *DiscoveryIntersection) {
-	intersection = &DiscoveryIntersection{}
+func Intersect(repository *resources.Repository, lockfile *resources.Lockfile) *DiscoveryIntersection {
+	intersection := &DiscoveryIntersection{}
 
 	// map of all source paths
 	sourcePaths := make(map[string]PairedDiscovery)
@@ -79,5 +79,5 @@ func Intersect(repository *resources.Repository, lockfile *resources.Lockfile) (
 		}
 	}
 
-	return
+	return intersection
 }

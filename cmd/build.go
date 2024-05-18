@@ -46,7 +46,7 @@ var (
 			klog.Info("Reconciling...")
 			rebuilt, err := build.ReconcileDifferences(repo, lock, intersection)
 
-			// PostBuild-build processors
+			// Post-build processors
 			message.WithRebuilt(rebuilt)
 			for _, proc := range repo.Processors {
 				if proc.Stage == resources.StagePostBuild {

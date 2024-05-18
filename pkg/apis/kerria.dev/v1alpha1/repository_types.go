@@ -79,7 +79,7 @@ type ContainerSpec struct {
 	Network bool `json:"network,omitempty" yaml:"network,omitempty"`
 
 	// +default=true
-	// MountGitRoot defines whether Kerria will automatically mount the directory of repo file into the processor.
+	// MountGitRoot defines whether Kerria will automatically mount the git root into the processor.
 	// The destination for this automatic mount is /gitroot within the container
 	MountGitRoot bool `json:"mountGitRoot,omitempty" yaml:"mountGitRoot,omitempty"`
 

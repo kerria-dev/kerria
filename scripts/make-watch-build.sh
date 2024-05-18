@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# SPDX-License-Identifier: Apache-2.0
+# Copyright Authors of Kerria
+
 while true;
 do
   if ! make bin/kerria -q "$@";

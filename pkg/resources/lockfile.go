@@ -62,38 +62,38 @@ type BuildStatus struct {
 }
 
 // LockfileFromAPI converts the latest API into the internal representation
-func LockfileFromAPI(apiLock *v1alpha1.Lockfile) (lockfile *Lockfile, err error) {
-	lockfile = &Lockfile{}
+func LockfileFromAPI(apiLock *v1alpha1.Lockfile) (*Lockfile, error) {
+	var err error
+	lockfile := &Lockfile{}
 	lockfile.Name = apiLock.Name
 	lockfile.DefaultHash = HashAlgorithms[apiLock.Spec.DefaultHash]
 	for idx, apiBuildStatus := range apiLock.Status.Builds {
-
 		buildStatus := BuildStatus{}
 		buildStatus.ID = idx
 		buildStatus.Timestamp, err = time.Parse(time.RFC3339, apiBuildStatus.Timestamp)
 		if err != nil {
-			return
+			return nil, err
 		}
 		buildStatus.SourceHash, err = hex.DecodeString(apiBuildStatus.SourceHash)
 		if err != nil {
-			return
+			return nil, err
 		}
 		buildStatus.SourceHashType = HashAlgorithms[string(apiBuildStatus.SourceHashType)]
 		buildStatus.SourcePath = apiBuildStatus.SourcePath
 		buildStatus.BuildHash, err = hex.DecodeString(apiBuildStatus.BuildHash)
 		if err != nil {
-			return
+			return nil, err
 		}
 		buildStatus.BuildHashType = HashAlgorithms[string(apiBuildStatus.BuildHashType)]
 		buildStatus.BuildPath = apiBuildStatus.BuildPath
 
 		lockfile.Builds = append(lockfile.Builds, &buildStatus)
 	}
-	return
+	return lockfile, nil
 }
 
-func (lockfile *Lockfile) AsAPI() (apiLock *v1alpha1.Lockfile) {
-	apiLock = &v1alpha1.Lockfile{}
+func (lockfile *Lockfile) AsAPI() *v1alpha1.Lockfile {
+	apiLock := &v1alpha1.Lockfile{}
 	apiLock.APIVersion = krapi.APIVersionV1Alpha1
 	apiLock.Kind = LockKind
 	apiLock.Name = lockfile.Name
@@ -110,7 +110,7 @@ func (lockfile *Lockfile) AsAPI() (apiLock *v1alpha1.Lockfile) {
 		}
 		apiLock.Status.Builds = append(apiLock.Status.Builds, apiBuildStatus)
 	}
-	return
+	return apiLock
 }
 
 func (lockfile *Lockfile) Write() error {
@@ -153,25 +153,22 @@ func ReadLockfile() (*Lockfile, error) {
 	return ReadLockfileWithPath(LockFile)
 }
 
-func ReadLockfileWithPath(path string) (lockfile *Lockfile, err error) {
-	var rnode *kyyaml.RNode
-	rnode, err = kyyaml.ReadFile(path)
+func ReadLockfileWithPath(path string) (*Lockfile, error) {
+	rnode, err := kyyaml.ReadFile(path)
 	if err != nil {
-		return
+		return nil, err
 	}
 	err = rnode.DeAnchor()
 	if err != nil {
-		return
+		return nil, err
 	}
 	apiVersion := rnode.GetApiVersion()
 	kind := rnode.GetKind()
 	if apiVersion != krapi.APIVersionV1Alpha1 {
-		err = fmt.Errorf("unsupported apiVersion for Lockfile %s", apiVersion)
-		return
+		return nil, fmt.Errorf("unsupported apiVersion for Lockfile %s", apiVersion)
 	}
 	if kind != LockKind {
-		err = fmt.Errorf("incorrect kind %s is not Lockfile", kind)
-		return
+		return nil, fmt.Errorf("incorrect kind %s is not Lockfile", kind)
 	}
 	typeMeta := kyyaml.TypeMeta{
 		APIVersion: apiVersion,
@@ -183,8 +180,7 @@ func ReadLockfileWithPath(path string) (lockfile *Lockfile, err error) {
 		panic(err)
 	}
 	v1alpha1Lock := value.Interface().(*v1alpha1.Lockfile)
-	lockfile, err = LockfileFromAPI(v1alpha1Lock)
-	return
+	return LockfileFromAPI(v1alpha1Lock)
 }
 
 func init() {
