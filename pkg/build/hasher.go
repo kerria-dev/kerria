@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Authors of Kerria
 
-package util
+package build
 
 import (
 	"github.com/kerria-dev/kerria/pkg/resources"
+	"github.com/kerria-dev/kerria/pkg/util"
 	"hash"
 	"io/fs"
 	"os"
@@ -23,7 +24,7 @@ func DirectoryHash(algorithm resources.HashAlgorithm, baseDir string, relativeDi
 	if err != nil {
 		return
 	}
-	ignores, err := NewIgnores(baseDir)
+	ignores, err := util.NewIgnores(baseDir)
 	if err != nil {
 		return
 	}

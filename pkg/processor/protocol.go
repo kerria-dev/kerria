@@ -18,6 +18,7 @@ const Protocol_0_1_0 Protocol = "0.1.0"
 type RepositoryMessage struct {
 	Protocol    Protocol        `json:"protocol"`
 	Name        string          `json:"name"`
+	RepoRoot    string          `json:"repoRoot"`
 	BuildPath   string          `json:"buildPath"`
 	Processor   Processor       `json:"processor"`
 	Sources     []Source        `json:"sources"`
@@ -64,6 +65,7 @@ func NewRepositoryMessage(
 	message := &RepositoryMessage{}
 	message.Protocol = Protocol_0_1_0
 	message.Name = repository.Name
+	message.RepoRoot = repository.RepoRoot
 	message.BuildPath = repository.BuildPath
 	for _, repoSource := range repository.Sources {
 		message.Sources = append(message.Sources, Source{

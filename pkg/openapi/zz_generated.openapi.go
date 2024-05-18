@@ -219,9 +219,9 @@ func schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
-					"mountRepo": {
+					"mountGitRoot": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MountRepo defines whether Kerria will automatically mount the directory of repo file into the processor. The destination for this automatic mount is /repository within the container",
+							Description: "MountGitRoot defines whether Kerria will automatically mount the directory of repo file into the processor. The destination for this automatic mount is /gitroot within the container",
 							Default:     true,
 							Type:        []string{"boolean"},
 							Format:      "",

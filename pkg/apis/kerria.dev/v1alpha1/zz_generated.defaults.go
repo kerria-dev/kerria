@@ -35,8 +35,8 @@ func SetObjectDefaults_Repository(in *Repository) {
 		if a.Container.Network == false {
 			a.Container.Network = false
 		}
-		if a.Container.MountRepo == false {
-			a.Container.MountRepo = true
+		if a.Container.MountGitRoot == false {
+			a.Container.MountGitRoot = true
 		}
 		for j := range a.Container.AdditionalMounts {
 			b := &a.Container.AdditionalMounts[j]

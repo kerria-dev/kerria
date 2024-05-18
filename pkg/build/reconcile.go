@@ -9,7 +9,6 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/kerria-dev/kerria/pkg/resources"
 	"github.com/kerria-dev/kerria/pkg/scaffold"
-	"github.com/kerria-dev/kerria/pkg/util"
 	"k8s.io/klog/v2"
 	"os"
 	"path/filepath"
@@ -24,26 +23,13 @@ var (
 )
 
 func ReconcileDifferences(repository *resources.Repository, lockfile *resources.Lockfile, intersection *DiscoveryIntersection) ([]PairedDiscovery, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	repoRoot, err := util.GitRepositoryRoot(cwd)
-	if err != nil {
-		return nil, err
-	}
-	cwdRel, err := filepath.Rel(repoRoot, cwd)
-	if err != nil {
-		return nil, err
-	}
-
 	// Check source hashes for the resources that need rebuilds
 	klog.Infof("Checking %v source directories...", len(intersection.Check))
 	var keep []*resources.BuildStatus
 	var needsRebuild []PairedDiscovery
 	for _, pairing := range intersection.Check {
-		digest, err := util.DirectoryHash(pairing.BuildStatus.SourceHashType,
-			repoRoot, filepath.Join(cwdRel, pairing.BuildStatus.SourcePath))
+		digest, err := DirectoryHash(pairing.BuildStatus.SourceHashType,
+			repository.GitRoot, filepath.Join(repository.RepoRoot, pairing.BuildStatus.SourcePath))
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +46,7 @@ func ReconcileDifferences(repository *resources.Repository, lockfile *resources.
 	if len(intersection.Delete) > 0 {
 		klog.Info("Removing builds with missing sources...")
 	}
-	err = removeBuilds(intersection.Delete)
+	err := removeBuilds(intersection.Delete)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +63,7 @@ func ReconcileDifferences(repository *resources.Repository, lockfile *resources.
 	if len(needsRebuild) > 0 {
 		klog.Info("Building what needs to be rebuilt...")
 	}
-	err = createBuilds(needsRebuild, repository.KustomizeFlags, repoRoot, cwdRel)
+	err = createBuilds(needsRebuild, repository.KustomizeFlags, repository.GitRoot, repository.RepoRoot)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +71,7 @@ func ReconcileDifferences(repository *resources.Repository, lockfile *resources.
 	if len(intersection.Create) > 0 {
 		klog.Info("Building new sources...")
 	}
-	err = createBuilds(intersection.Create, repository.KustomizeFlags, repoRoot, cwdRel)
+	err = createBuilds(intersection.Create, repository.KustomizeFlags, repository.GitRoot, repository.RepoRoot)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +107,7 @@ func createBuilds(pairs []PairedDiscovery, kustomizeFlags []string, repoRoot str
 		if err != nil {
 			return err
 		}
-		digest, err := util.DirectoryHash(buildStatus.BuildHashType,
+		digest, err := DirectoryHash(buildStatus.BuildHashType,
 			repoRoot, filepath.Join(cwdRel, buildStatus.BuildPath))
 		if err != nil {
 			return err

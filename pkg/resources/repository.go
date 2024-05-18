@@ -9,6 +9,7 @@ import (
 	krapi "github.com/kerria-dev/kerria/pkg/apis/kerria.dev"
 	"github.com/kerria-dev/kerria/pkg/apis/kerria.dev/v1alpha1"
 	"github.com/kerria-dev/kerria/pkg/openapi"
+	"github.com/kerria-dev/kerria/pkg/util"
 	"k8s.io/klog/v2"
 	"os"
 	"path/filepath"
@@ -23,6 +24,8 @@ const (
 
 type Repository struct {
 	Name           string
+	GitRoot        string
+	RepoRoot       string
 	KustomizeFlags []string
 	BuildPath      string
 	Sources        []*Source
@@ -79,16 +82,28 @@ type StorageMount struct {
 }
 
 const (
-	fileKustomization   = "kustomization.yaml"
-	kindKustomization   = "Kustomization"
-	mountTypeRepository = "bind"
-	mountDestRepository = "/repository"
+	fileKustomization = "kustomization.yaml"
+	kindKustomization = "Kustomization"
+	mountTypeGitRoot  = "bind"
+	mountDestGitRoot  = "/gitroot"
 )
 
 // RepositoryFromAPI converts the latest API into the internal representation
 func RepositoryFromAPI(apiRepo *v1alpha1.Repository) (*Repository, error) {
 	repository := &Repository{}
 	repository.Name = apiRepo.Name
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	repository.GitRoot, err = util.GitRepositoryRoot(cwd)
+	if err != nil {
+		return nil, err
+	}
+	repository.RepoRoot, err = filepath.Rel(repository.GitRoot, cwd)
+	if err != nil {
+		return nil, err
+	}
 	repository.KustomizeFlags = apiRepo.Spec.Build.KustomizeFlags
 	repository.BuildPath = apiRepo.Spec.Build.OutputPath
 	for idx, apiSourceConfig := range apiRepo.Spec.Sources {
@@ -128,16 +143,12 @@ func RepositoryFromAPI(apiRepo *v1alpha1.Repository) (*Repository, error) {
 		processor.Properties = apiProcessor.Properties
 		processor.Image = apiProcessor.Container.Image
 		processor.Network = apiProcessor.Container.Network
-		if apiProcessor.Container.MountRepo {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return nil, err
-			}
+		if apiProcessor.Container.MountGitRoot {
 			processor.StorageMounts = append(processor.StorageMounts, &StorageMount{
-				MountType:     mountTypeRepository,
-				Source:        cwd,
-				Destination:   mountDestRepository,
-				ReadWriteMode: false,
+				MountType:     mountTypeGitRoot,
+				Source:        repository.GitRoot,
+				Destination:   mountDestGitRoot,
+				ReadWriteMode: true,
 			})
 		}
 		for _, apiStorageMount := range apiProcessor.Container.AdditionalMounts {

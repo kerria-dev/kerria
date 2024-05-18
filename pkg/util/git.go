@@ -9,7 +9,13 @@ import (
 	"path/filepath"
 )
 
+var gitRepositoryRootCache string
+
 func GitRepositoryRoot(path string) (string, error) {
+	if gitRepositoryRootCache != "" {
+		return gitRepositoryRootCache, nil
+	}
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return "", err
@@ -19,6 +25,7 @@ func GitRepositoryRoot(path string) (string, error) {
 		// Check if current path contains a .git/
 		fileInfo, err := os.Stat(filepath.Join(absPath, ".git"))
 		if err == nil && fileInfo.IsDir() {
+			gitRepositoryRootCache = absPath
 			return absPath, nil
 		}
 		// Otherwise traverse to parent
