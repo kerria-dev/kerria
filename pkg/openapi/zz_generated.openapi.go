@@ -58,6 +58,7 @@ func schema_pkg_apis_kerriadev_meta_ObjectMeta(ref common.ReferenceCallback) com
 					"labels": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Labels is a aap of string keys and values that can be used to organize and categorize (scope and select) objects.",
+							Default:     map[string]interface{}{},
 							Type:        []string{"object"},
 							AdditionalProperties: &spec.SchemaOrBool{
 								Allows: true,
@@ -74,6 +75,7 @@ func schema_pkg_apis_kerriadev_meta_ObjectMeta(ref common.ReferenceCallback) com
 					"annotations": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata.",
+							Default:     map[string]interface{}{},
 							Type:        []string{"object"},
 							AdditionalProperties: &spec.SchemaOrBool{
 								Allows: true,
@@ -538,6 +540,40 @@ func schema_pkg_apis_kerriadev_v1alpha1_RepositorySourceConfig(ref common.Refere
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"labels": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Labels is a map of all labels that will be inherited by the discoveries of the source",
+							Default:     map[string]interface{}{},
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"annotations": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Annotations is a map of all annotations that will be inherited by the discoveries of the source",
+							Default:     map[string]interface{}{},
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
 						},
 					},
 				},

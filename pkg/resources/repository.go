@@ -131,6 +131,18 @@ func RepositoryFromAPI(apiRepo *v1alpha1.Repository) (*Repository, error) {
 				Labels:      rnode.GetLabels(),
 				Annotations: rnode.GetAnnotations(),
 			}
+			for k, v := range apiRepo.Spec.Sources[idx].Labels {
+				_, exists := discovery.Labels[k]
+				if !exists {
+					discovery.Labels[k] = v
+				}
+			}
+			for k, v := range apiRepo.Spec.Sources[idx].Annotations {
+				_, exists := discovery.Annotations[k]
+				if !exists {
+					discovery.Annotations[k] = v
+				}
+			}
 			source.Discoveries = append(source.Discoveries, discovery)
 		}
 		repository.Sources = append(repository.Sources, source)

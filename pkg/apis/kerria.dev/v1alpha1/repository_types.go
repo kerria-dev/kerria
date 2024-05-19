@@ -45,6 +45,12 @@ type RepositorySourceConfig struct {
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Glob is a directory pattern for manifest sources
 	Glob string `json:"glob" yaml:"glob"`
+	// +default={}
+	// Labels is a map of all labels that will be inherited by the discoveries of the source
+	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	// +default={}
+	// Annotations is a map of all annotations that will be inherited by the discoveries of the source
+	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
 // ProcessorConfig defines how a processor should be configured for the repository

@@ -13,12 +13,32 @@ import (
 )
 
 func SetObjectDefaults_Lockfile(in *Lockfile) {
+	if in.ObjectMeta.Labels == nil {
+		if err := json.Unmarshal([]byte(`{}`), &in.ObjectMeta.Labels); err != nil {
+			panic(err)
+		}
+	}
+	if in.ObjectMeta.Annotations == nil {
+		if err := json.Unmarshal([]byte(`{}`), &in.ObjectMeta.Annotations); err != nil {
+			panic(err)
+		}
+	}
 	if in.Spec.DefaultHash == "" {
 		in.Spec.DefaultHash = "sha256"
 	}
 }
 
 func SetObjectDefaults_Repository(in *Repository) {
+	if in.ObjectMeta.Labels == nil {
+		if err := json.Unmarshal([]byte(`{}`), &in.ObjectMeta.Labels); err != nil {
+			panic(err)
+		}
+	}
+	if in.ObjectMeta.Annotations == nil {
+		if err := json.Unmarshal([]byte(`{}`), &in.ObjectMeta.Annotations); err != nil {
+			panic(err)
+		}
+	}
 	if in.Spec.Build.KustomizeFlags == nil {
 		if err := json.Unmarshal([]byte(`["--enable-helm", "--enable-alpha-plugins", "--network"]`), &in.Spec.Build.KustomizeFlags); err != nil {
 			panic(err)
@@ -26,6 +46,19 @@ func SetObjectDefaults_Repository(in *Repository) {
 	}
 	if in.Spec.Build.OutputPath == "" {
 		in.Spec.Build.OutputPath = "builds"
+	}
+	for i := range in.Spec.Sources {
+		a := &in.Spec.Sources[i]
+		if a.Labels == nil {
+			if err := json.Unmarshal([]byte(`{}`), &a.Labels); err != nil {
+				panic(err)
+			}
+		}
+		if a.Annotations == nil {
+			if err := json.Unmarshal([]byte(`{}`), &a.Annotations); err != nil {
+				panic(err)
+			}
+		}
 	}
 	for i := range in.Spec.Processors {
 		a := &in.Spec.Processors[i]
