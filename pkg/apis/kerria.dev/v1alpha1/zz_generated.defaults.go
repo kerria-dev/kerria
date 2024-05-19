@@ -65,17 +65,5 @@ func SetObjectDefaults_Repository(in *Repository) {
 		if a.Stage == "" {
 			a.Stage = "None"
 		}
-		if a.Container.Network == false {
-			a.Container.Network = false
-		}
-		if a.Container.MountGitRoot == false {
-			a.Container.MountGitRoot = true
-		}
-		for j := range a.Container.AdditionalMounts {
-			b := &a.Container.AdditionalMounts[j]
-			if b.RW == false {
-				b.RW = false
-			}
-		}
 	}
 }

@@ -216,15 +216,13 @@ func schema_pkg_apis_kerriadev_v1alpha1_ContainerSpec(ref common.ReferenceCallba
 					"network": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Network defines network specific configuration",
-							Default:     false,
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
-					"mountGitRoot": {
+					"suppressGitRoot": {
 						SchemaProps: spec.SchemaProps{
-							Description: "MountGitRoot defines whether Kerria will automatically mount the git root into the processor. The destination for this automatic mount is /gitroot within the container",
-							Default:     true,
+							Description: "SuppressGitRoot prevents Kerria from automatically mounting the git root into the processor. The destination for this automatic mount is /gitroot within the container",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
@@ -678,7 +676,6 @@ func schema_pkg_apis_kerriadev_v1alpha1_StorageMount(ref common.ReferenceCallbac
 					"rw": {
 						SchemaProps: spec.SchemaProps{
 							Description: "RW to mount in ReadWrite mode if it's explicitly configured See https://docs.docker.com/storage/bind-mounts/#use-a-read-only-bind-mount",
-							Default:     false,
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

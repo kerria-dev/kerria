@@ -80,14 +80,12 @@ type ContainerSpec struct {
 	// Image is the container image to run
 	Image string `json:"image" yaml:"image"`
 
-	// +default=false
 	// Network defines network specific configuration
 	Network bool `json:"network,omitempty" yaml:"network,omitempty"`
 
-	// +default=true
-	// MountGitRoot defines whether Kerria will automatically mount the git root into the processor.
+	// SuppressGitRoot prevents Kerria from automatically mounting the git root into the processor.
 	// The destination for this automatic mount is /gitroot within the container
-	MountGitRoot bool `json:"mountGitRoot,omitempty" yaml:"mountGitRoot,omitempty"`
+	SuppressGitRoot bool `json:"suppressGitRoot,omitempty" yaml:"suppressGitRoot,omitempty"`
 
 	// +listType=map
 	// +listMapKey=src
@@ -113,7 +111,6 @@ type StorageMount struct {
 	// Dst where the file or directory is mounted in the container.
 	Dst string `json:"dst,omitempty" yaml:"dst,omitempty"`
 
-	// +default=false
 	// RW to mount in ReadWrite mode if it's explicitly configured
 	// See https://docs.docker.com/storage/bind-mounts/#use-a-read-only-bind-mount
 	RW bool `json:"rw,omitempty" yaml:"rw,omitempty"`

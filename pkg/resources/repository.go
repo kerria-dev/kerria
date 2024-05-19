@@ -155,7 +155,7 @@ func RepositoryFromAPI(apiRepo *v1alpha1.Repository) (*Repository, error) {
 		processor.Properties = apiProcessor.Properties
 		processor.Image = apiProcessor.Container.Image
 		processor.Network = apiProcessor.Container.Network
-		if apiProcessor.Container.MountGitRoot {
+		if !apiProcessor.Container.SuppressGitRoot {
 			processor.StorageMounts = append(processor.StorageMounts, &StorageMount{
 				MountType:     mountTypeGitRoot,
 				Source:        repository.GitRoot,
