@@ -141,26 +141,26 @@ func schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"sourceHash": {
+					"discoHash": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SourceHash is the source directory hash digest in the form of SourceHashType",
+							Description: "DiscoHash is the discovery directory hash digest in the form of DiscoHashType",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"sourceHashType": {
+					"discoHashType": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SourceHashType is the type of hash used to compute the source digest\n\nPossible enum values:\n - `\"md5\"`\n - `\"sha1\"`\n - `\"sha256\"`\n - `\"sha512\"`",
+							Description: "DiscoHashType is the type of hash used to compute the discovery digest\n\nPossible enum values:\n - `\"md5\"`\n - `\"sha1\"`\n - `\"sha256\"`\n - `\"sha512\"`",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
 							Enum:        []interface{}{"md5", "sha1", "sha256", "sha512"},
 						},
 					},
-					"sourcePath": {
+					"discoPath": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SourcePath is the path to the source directory used to create the build",
+							Description: "DiscoPath is the path to the discovery directory used to create the build",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -192,7 +192,7 @@ func schema_pkg_apis_kerriadev_v1alpha1_BuildStatus(ref common.ReferenceCallback
 						},
 					},
 				},
-				Required: []string{"timestamp", "sourceHash", "sourceHashType", "sourcePath", "buildHash", "buildHashType", "buildPath"},
+				Required: []string{"timestamp", "discoHash", "discoHashType", "discoPath", "buildHash", "buildHashType", "buildPath"},
 			},
 		},
 	}
@@ -359,7 +359,7 @@ func schema_pkg_apis_kerriadev_v1alpha1_LockfileStatus(ref common.ReferenceCallb
 						VendorExtensible: spec.VendorExtensible{
 							Extensions: spec.Extensions{
 								"x-kubernetes-list-map-keys": []interface{}{
-									"sourcePath",
+									"discoPath",
 								},
 								"x-kubernetes-list-type": "map",
 							},

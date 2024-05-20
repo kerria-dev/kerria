@@ -23,28 +23,28 @@ var (
 )
 
 func ReconcileDifferences(repository *resources.Repository, lockfile *resources.Lockfile, intersection *DiscoveryIntersection) ([]PairedDiscovery, error) {
-	// Check source hashes for the resources that need rebuilds
-	klog.Infof("Checking %v source directories...", len(intersection.Check))
+	// Check discovery hashes for the resources that need rebuilds
+	klog.Infof("Checking %v discovery directories...", len(intersection.Check))
 	var keep []*resources.BuildStatus
 	var needsRebuild []PairedDiscovery
 	for _, pairing := range intersection.Check {
-		digest, err := DirectoryHash(pairing.BuildStatus.SourceHashType,
-			repository.GitRoot, filepath.Join(repository.RepoRoot, pairing.BuildStatus.SourcePath))
+		digest, err := DirectoryHash(pairing.BuildStatus.DiscoHashType,
+			repository.GitRoot, filepath.Join(repository.RepoRoot, pairing.BuildStatus.DiscoPath))
 		if err != nil {
 			return nil, err
 		}
-		if bytes.Equal(digest, pairing.BuildStatus.SourceHash) {
+		if bytes.Equal(digest, pairing.BuildStatus.DiscoHash) {
 			keep = append(keep, pairing.BuildStatus)
 		} else {
-			pairing.BuildStatus.SourceHash = digest
+			pairing.BuildStatus.DiscoHash = digest
 			needsRebuild = append(needsRebuild, pairing)
 		}
 	}
-	klog.Infof("%v sources need to be rebuilt", len(needsRebuild))
+	klog.Infof("%v discoveries need to be rebuilt", len(needsRebuild))
 
 	// Remove all build directories associated with missing sources
 	if len(intersection.Delete) > 0 {
-		klog.Info("Removing builds with missing sources...")
+		klog.Info("Removing builds with missing discoveries...")
 	}
 	err := removeBuilds(intersection.Delete)
 	if err != nil {
@@ -67,9 +67,9 @@ func ReconcileDifferences(repository *resources.Repository, lockfile *resources.
 	if err != nil {
 		return nil, err
 	}
-	// Build all new sources
+	// Build all new discoveries
 	if len(intersection.Create) > 0 {
-		klog.Info("Building new sources...")
+		klog.Info("Building new discoveries...")
 	}
 	err = createBuilds(intersection.Create, repository.KustomizeFlags, repository.GitRoot, repository.RepoRoot)
 	if err != nil {
@@ -102,8 +102,8 @@ func removeBuilds(pairs []PairedDiscovery) error {
 func createBuilds(pairs []PairedDiscovery, kustomizeFlags []string, repoRoot string, cwdRel string) error {
 	for _, pairing := range pairs {
 		buildStatus := pairing.BuildStatus
-		klog.Infof("Building %s", buildStatus.SourcePath)
-		err := createBuild(buildStatus.SourcePath, buildStatus.BuildPath, kustomizeFlags)
+		klog.Infof("Building %s", buildStatus.DiscoPath)
+		err := createBuild(buildStatus.DiscoPath, buildStatus.BuildPath, kustomizeFlags)
 		if err != nil {
 			return err
 		}
@@ -118,8 +118,8 @@ func createBuilds(pairs []PairedDiscovery, kustomizeFlags []string, repoRoot str
 	return nil
 }
 
-func createBuild(sourcePath string, buildPath string, flags []string) error {
-	output, err := KustomizeBuildCommand(sourcePath, flags)
+func createBuild(discoPath string, buildPath string, flags []string) error {
+	output, err := KustomizeBuildCommand(discoPath, flags)
 	if err != nil {
 		return err
 	}
@@ -133,8 +133,8 @@ func createBuild(sourcePath string, buildPath string, flags []string) error {
 	}
 	defer fileReadme.Close()
 	err = templateReadme.Execute(fileReadme, struct {
-		SourcePath string
-	}{SourcePath: sourcePath})
+		DiscoPath string
+	}{DiscoPath: discoPath})
 	if err != nil {
 		return err
 	}

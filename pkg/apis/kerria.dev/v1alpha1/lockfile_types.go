@@ -27,7 +27,7 @@ type LockfileSpec struct {
 // LockfileStatus represents the current state of the lockfile
 type LockfileStatus struct {
 	// +listType=map
-	// +listMapKey=sourcePath
+	// +listMapKey=discoPath
 	// Builds is a list of BuildStatus for all builds in the repository
 	Builds []BuildStatus `json:"builds" yaml:"builds"`
 }
@@ -36,12 +36,12 @@ type LockfileStatus struct {
 type BuildStatus struct {
 	// Timestamp is the RFC 3339 timestamp for when the build was performed
 	Timestamp string `json:"timestamp" yaml:"timestamp"`
-	// SourceHash is the source directory hash digest in the form of SourceHashType
-	SourceHash string `json:"sourceHash" yaml:"sourceHash"`
-	// SourceHashType is the type of hash used to compute the source digest
-	SourceHashType HashAlgorithm `json:"sourceHashType" yaml:"sourceHashType"`
-	// SourcePath is the path to the source directory used to create the build
-	SourcePath string `json:"sourcePath" yaml:"sourcePath"`
+	// DiscoHash is the discovery directory hash digest in the form of DiscoHashType
+	DiscoHash string `json:"discoHash" yaml:"discoHash"`
+	// DiscoHashType is the type of hash used to compute the discovery digest
+	DiscoHashType HashAlgorithm `json:"discoHashType" yaml:"discoHashType"`
+	// DiscoPath is the path to the discovery directory used to create the build
+	DiscoPath string `json:"discoPath" yaml:"discoPath"`
 	// BuildHash is the build directory hash digest in the form of BuildHashType
 	BuildHash string `json:"buildHash" yaml:"buildHash"`
 	// BuildHashType is the type of hash used to compute the build digest

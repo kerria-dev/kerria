@@ -51,14 +51,14 @@ type Lockfile struct {
 }
 
 type BuildStatus struct {
-	ID             int
-	Timestamp      time.Time
-	SourceHash     []byte
-	SourceHashType HashAlgorithm
-	SourcePath     string
-	BuildHash      []byte
-	BuildHashType  HashAlgorithm
-	BuildPath      string
+	ID            int
+	Timestamp     time.Time
+	DiscoHash     []byte
+	DiscoHashType HashAlgorithm
+	DiscoPath     string
+	BuildHash     []byte
+	BuildHashType HashAlgorithm
+	BuildPath     string
 }
 
 // LockfileFromAPI converts the latest API into the internal representation
@@ -74,12 +74,12 @@ func LockfileFromAPI(apiLock *v1alpha1.Lockfile) (*Lockfile, error) {
 		if err != nil {
 			return nil, err
 		}
-		buildStatus.SourceHash, err = hex.DecodeString(apiBuildStatus.SourceHash)
+		buildStatus.DiscoHash, err = hex.DecodeString(apiBuildStatus.DiscoHash)
 		if err != nil {
 			return nil, err
 		}
-		buildStatus.SourceHashType = HashAlgorithms[string(apiBuildStatus.SourceHashType)]
-		buildStatus.SourcePath = apiBuildStatus.SourcePath
+		buildStatus.DiscoHashType = HashAlgorithms[string(apiBuildStatus.DiscoHashType)]
+		buildStatus.DiscoPath = apiBuildStatus.DiscoPath
 		buildStatus.BuildHash, err = hex.DecodeString(apiBuildStatus.BuildHash)
 		if err != nil {
 			return nil, err
@@ -100,13 +100,13 @@ func (lockfile *Lockfile) AsAPI() *v1alpha1.Lockfile {
 	apiLock.Spec.DefaultHash = HashAlgorithmsReverse[lockfile.DefaultHash]
 	for _, buildStatus := range lockfile.Builds {
 		apiBuildStatus := v1alpha1.BuildStatus{
-			Timestamp:      buildStatus.Timestamp.Format(time.RFC3339),
-			SourceHash:     hex.EncodeToString(buildStatus.SourceHash),
-			SourceHashType: v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.SourceHashType]),
-			SourcePath:     buildStatus.SourcePath,
-			BuildHash:      hex.EncodeToString(buildStatus.BuildHash),
-			BuildHashType:  v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.BuildHashType]),
-			BuildPath:      buildStatus.BuildPath,
+			Timestamp:     buildStatus.Timestamp.Format(time.RFC3339),
+			DiscoHash:     hex.EncodeToString(buildStatus.DiscoHash),
+			DiscoHashType: v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.DiscoHashType]),
+			DiscoPath:     buildStatus.DiscoPath,
+			BuildHash:     hex.EncodeToString(buildStatus.BuildHash),
+			BuildHashType: v1alpha1.HashAlgorithm(HashAlgorithmsReverse[buildStatus.BuildHashType]),
+			BuildPath:     buildStatus.BuildPath,
 		}
 		apiLock.Status.Builds = append(apiLock.Status.Builds, apiBuildStatus)
 	}

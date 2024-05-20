@@ -45,9 +45,9 @@ type DiscoveryStatus struct {
 
 type Discovery struct {
 	Source         int               `json:"source"`
-	SourcePath     string            `json:"sourcePath"`
-	SourceHash     string            `json:"sourceHash"`
-	SourceHashType string            `json:"sourceHashType"`
+	DiscoPath      string            `json:"discoPath"`
+	DiscoHash      string            `json:"discoHash"`
+	DiscoHashType  string            `json:"discoHashType"`
 	BuildPath      string            `json:"buildPath"`
 	BuildTimestamp string            `json:"buildTimestamp"`
 	BuildHash      string            `json:"buildHash"`
@@ -106,9 +106,9 @@ func (message *RepositoryMessage) WithRebuilt(rebuilt []build.PairedDiscovery) {
 func newDiscovery(pair *build.PairedDiscovery) *Discovery {
 	return &Discovery{
 		Source:         pair.Source.ID,
-		SourcePath:     pair.BuildStatus.SourcePath,
-		SourceHash:     hex.EncodeToString(pair.BuildStatus.SourceHash),
-		SourceHashType: resources.HashAlgorithmsReverse[pair.BuildStatus.SourceHashType],
+		DiscoPath:      pair.BuildStatus.DiscoPath,
+		DiscoHash:      hex.EncodeToString(pair.BuildStatus.DiscoHash),
+		DiscoHashType:  resources.HashAlgorithmsReverse[pair.BuildStatus.DiscoHashType],
 		BuildPath:      pair.BuildStatus.BuildPath,
 		BuildTimestamp: pair.BuildStatus.Timestamp.Format(time.RFC3339),
 		BuildHash:      hex.EncodeToString(pair.BuildStatus.BuildHash),

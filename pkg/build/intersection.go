@@ -28,28 +28,28 @@ type PairedDiscovery struct {
 func Intersect(repository *resources.Repository, lockfile *resources.Lockfile) *DiscoveryIntersection {
 	intersection := &DiscoveryIntersection{}
 
-	// map of all source paths
-	sourcePaths := make(map[string]PairedDiscovery)
+	// map of all discovery paths
+	discoPaths := make(map[string]PairedDiscovery)
 	for _, source := range repository.Sources {
 		for _, discovery := range source.Discoveries {
-			sourcePaths[discovery.Path] = PairedDiscovery{
+			discoPaths[discovery.Path] = PairedDiscovery{
 				Source:    source,
 				Discovery: discovery,
 			}
 		}
 	}
 
-	// set of source paths found in the lockfile
-	sourcePathsUsed := make(map[string]struct{})
+	// set of discovery paths found in the lockfile
+	discoPathsUsed := make(map[string]struct{})
 
 	maxID := math.MinInt
 	// find intersection and lockfile difference
 	for _, lockBuildStatus := range lockfile.Builds {
-		pair, exists := sourcePaths[lockBuildStatus.SourcePath]
+		pair, exists := discoPaths[lockBuildStatus.DiscoPath]
 		if exists {
 			pair.BuildStatus = lockBuildStatus
 			intersection.Check = append(intersection.Check, pair)
-			sourcePathsUsed[lockBuildStatus.SourcePath] = struct{}{}
+			discoPathsUsed[lockBuildStatus.DiscoPath] = struct{}{}
 		} else {
 			intersection.Delete = append(intersection.Delete, PairedDiscovery{
 				BuildStatus: lockBuildStatus,
@@ -62,18 +62,18 @@ func Intersect(repository *resources.Repository, lockfile *resources.Lockfile) *
 	// find repository difference
 	for _, source := range repository.Sources {
 		for _, discovery := range source.Discoveries {
-			_, exists := sourcePathsUsed[discovery.Path]
+			_, exists := discoPathsUsed[discovery.Path]
 			if !exists {
 				maxID++
 				intersection.Create = append(intersection.Create, PairedDiscovery{
 					Source:    source,
 					Discovery: discovery,
 					BuildStatus: &resources.BuildStatus{
-						ID:             maxID,
-						SourceHashType: lockfile.DefaultHash,
-						SourcePath:     discovery.Path,
-						BuildHashType:  lockfile.DefaultHash,
-						BuildPath:      filepath.ToSlash(filepath.Join(repository.BuildPath, discovery.Path)),
+						ID:            maxID,
+						DiscoHashType: lockfile.DefaultHash,
+						DiscoPath:     discovery.Path,
+						BuildHashType: lockfile.DefaultHash,
+						BuildPath:     filepath.ToSlash(filepath.Join(repository.BuildPath, discovery.Path)),
 					}})
 			}
 		}
